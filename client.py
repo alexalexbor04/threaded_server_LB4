@@ -3,10 +3,12 @@ import socket
 IP = input('Введите ip адрес для подключения (если ничего ен вводить, значение по умолчанию - 127.0.0.1): ')
 if IP == None:
     IP = '127.0.0.1'
-    
-port = int(input('Введите порт для подключения (если ничего ен вводить, значение по умолчанию - 12345): '))
-if port == None:
+
+port = input('Введите порт для подключения (если ничего не вводить, значение по умолчанию - 12345): ')
+if port == '':
     port = 12345
+else:
+    port = int(port)
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect((IP, port))
