@@ -52,7 +52,7 @@ class Thread_client(Thread):
             if Users[name]['password'] == get_password_hash(self.receive_message()):
                 self.successful_enterance()
             else:
-                self.chat_leaving('неправильный пароль')
+                self.chat_leaving('Неправильный пароль')
         else:
             self.send_message('Установите новый пароль')
             Users.update({name: {'password': get_password_hash(self.receive_message())}})
@@ -65,7 +65,7 @@ class Thread_client(Thread):
     def chat_leaving(self, reason=''):
         logging.info(f'Соединение закрыто {self.addr} {" - " + reason if reason else ""}')
         self.connected = False
-        message_to_all_users(f"{self.username} покинул чат", ip_list)
+        message_to_all_users(f"{self.username} покинул сервер", ip_list)
         if self in ip_list:
             ip_list.remove(self)
 
@@ -79,16 +79,16 @@ class Thread_client(Thread):
         try:
             return receive_text(self.conn)
         except ConnectionResetError:
-            self.chat_leaving('ошибка соединения')
+            self.chat_leaving('Ошибка соединения')
 
     def run(self):
         ip_list.append(self)
-        self.send_message(f'{self.username}, добро пожаловать в чат')
-        message_service(self, 'присоединился к чату')
+        self.send_message(f'Добро пожаловать, {self.username}')
+        message_service(self, 'присоединился к серверу')
         while True and self.connected:
             message = self.receive_message()
             if message == 'exit':
-                self.chat_leaving('пользователь вышел из чата')
+                self.chat_leaving('Пользователь отключился от сервера')
                 break
             message_to_all_users(f'{self.username}: {message}')
 
