@@ -8,7 +8,7 @@ logging.basicConfig(filename='server.log', level=logging.INFO, format='%(asctime
 
 Users = {}
 ip_list = []
-password_hashing = 'some_word'.encode('utf-8')
+password_hashing = 'hashing'.encode('utf-8')
 
 def start_server(host, port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
