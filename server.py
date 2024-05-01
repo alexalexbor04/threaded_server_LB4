@@ -6,6 +6,10 @@ import json
 
 logging.basicConfig(filename='server.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(funcName)s: %(message)s')
 
+сhatHistory = open("logs/chat_history.log", "w")
+сhatHistory.write('\n***История чата***\n')
+сhatHistory.close()
+
 Users = {}
 ip_list = []
 password_hashing = 'hashing'.encode('utf-8')
@@ -60,6 +64,11 @@ class Thread_client(Thread):
 
     def successful_enterance(self):
         self.send_message(f'Вход выполнен успешно')
+        chatHistory = open('logs/chat_history.log', 'r+')
+        lines = chatHistory.readlines()
+        for i in lines:
+            print(i)
+        chatHistory.close()
         save_users()
 
     def chat_leaving(self, reason=''):
