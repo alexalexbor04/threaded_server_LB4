@@ -10,29 +10,9 @@ Users = {}
 ip_list = []
 password_hashing = 'hashing'.encode('utf-8')
 
-def start_server(host, port):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    while True:
-        try:
-            sock.bind((host, port))
-            break
-        except OSError:
-            logging.info(f'Порт {port} уже занят, пробуем следующий порт...')
-            port += 1
-
-    logging.info(f'Сервер запущен на {host}:{port}')
-    print('Сервер запущен')
-
-    sock.listen(10)
-
-    while True:
-        client_socket, client_address = sock.accept()
-        logging.info(f'Открыто соединение {client_address}')
-        thread = Thread_client(client_socket, client_address)
-        thread.start()
-
-    sock.close()
+сhatHistory = open("logs/chat_history.log", "w")
+сhatHistory.write('\n***История чата***\n')
+сhatHistory.close()
 
 class Thread_client(Thread):
     def __init__(self, connection, address):
@@ -118,6 +98,30 @@ def send_text(conn, message):
     message = message.encode('utf-8')
     conn.send(message)
 
+def start_server(host, port):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        while True:
+            try:
+                sock.bind((host, port))
+                break
+            except OSError:
+                logging.info(f'Порт {port} уже занят, пробуем следующий порт...')
+                port += 1
+        sock.listen(10)
+        print('Сервер запущен')
+        logging.info(f'Сервер запущен на {host}:{port}')
+        try:
+            with open('users.json', 'r') as file:
+                Users = json.load(file)
+        except json.decoder.JSONDecodeError:
+            Users = {}
+        while True:
+            conn, addr = sock.accept()
+            print(f'Открыто соединение {addr} ')
+            logging.info(f'Открыто соединение {addr} ')
+            thread = Thread_client(conn, addr)
+            thread.start()
+
 if __name__ == '__main__':
     IP = input("Введите IP-адрес сервера (по умолчанию 127.0.0.1): ")
     if IP == '':
@@ -127,7 +131,6 @@ if __name__ == '__main__':
     if port == '':
         port = 12345
     else:
-        port = int(port)
-
-
+        port = int(port) 
+    
     start_server(IP, port)
