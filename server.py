@@ -4,7 +4,7 @@ import hashlib
 from threading import Thread
 import json
 
-logging.basicConfig(filename='server.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(funcName)s: %(message)s')
+logging.basicConfig(filename='logs/server.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(funcName)s: %(message)s')
 
 Users = {}
 ip_list = []
@@ -54,10 +54,13 @@ class Thread_client(Thread):
         self.username = name
         if name in Users.keys():
             self.send_message('Введите пароль')
-            if Users[name]['password'] == get_password_hash(self.receive_message()):
-                self.successful_enterance()
-            else:
-                self.chat_leaving('Неправильный пароль')
+            password_flag = False
+            while password_flag == False:
+                if Users[name]['password'] == get_password_hash(self.receive_message()):
+                    password_flag = True
+                    self.successful_enterance()
+                else:
+                    self.send_message('Неправильный пароль, попробуйте ещё раз')
         else:
             self.send_message('Установите новый пароль')
             Users.update({name: {'password': get_password_hash(self.receive_message())}})
