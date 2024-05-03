@@ -14,6 +14,31 @@ password_hashing = 'hashing'.encode('utf-8')
 сhatHistory.write('\n***История чата***\n')
 сhatHistory.close()
 
+def start_server(host, port):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        while True:
+            try:
+                sock.bind((host, port))
+                break
+            except OSError:
+                logging.info(f'Порт {port} уже занят, пробуем следующий порт...')
+                port += 1
+        sock.listen(10)
+        print('Сервер запущен')
+        logging.info(f'Сервер запущен на {host}:{port}')
+        try:
+            with open('users.json', 'r') as file:
+                Users = json.load(file)
+        except json.decoder.JSONDecodeError:
+            Users = {}
+            pass
+        while True:
+            conn, addr = sock.accept()
+            print(f'Открыто соединение {addr} ')
+            logging.info(f'Открыто соединение {addr} ')
+            thread = Thread_client(conn, addr)
+            thread.start()
+
 class Thread_client(Thread):
     def __init__(self, connection, address):
         super().__init__(daemon=True)
@@ -39,7 +64,11 @@ class Thread_client(Thread):
             save_users()
 
     def successful_enterance(self):
-        self.send_message(f'Вход выполнен успешно')
+        self.send_message('Вход выполнен успешно')
+        chatHistory = open('logs/chat_history.log', 'r+')
+        lines = chatHistory.readlines()
+        for i in lines:    
+            self.send_message(i)
         save_users()
 
     def chat_leaving(self, reason=''):
@@ -97,30 +126,6 @@ def receive_text(conn):
 def send_text(conn, message):
     message = message.encode('utf-8')
     conn.send(message)
-
-def start_server(host, port):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        while True:
-            try:
-                sock.bind((host, port))
-                break
-            except OSError:
-                logging.info(f'Порт {port} уже занят, пробуем следующий порт...')
-                port += 1
-        sock.listen(10)
-        print('Сервер запущен')
-        logging.info(f'Сервер запущен на {host}:{port}')
-        try:
-            with open('users.json', 'r') as file:
-                Users = json.load(file)
-        except json.decoder.JSONDecodeError:
-            Users = {}
-        while True:
-            conn, addr = sock.accept()
-            print(f'Открыто соединение {addr} ')
-            logging.info(f'Открыто соединение {addr} ')
-            thread = Thread_client(conn, addr)
-            thread.start()
 
 if __name__ == '__main__':
     IP = input("Введите IP-адрес сервера (по умолчанию 127.0.0.1): ")
